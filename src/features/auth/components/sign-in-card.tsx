@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SignInFolw } from "../types";
+import Cookies from "js-cookie";
 import {
   Card,
   CardContent,
@@ -24,6 +25,8 @@ import { Separator } from "@/components/ui/separator";
 import { FaGithub } from "react-icons/fa6";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import ky from "ky";
+import { useRouter } from "next/navigation";
 
 type SignInCardProps = {
   setState: (state: SignInFolw) => void;
@@ -38,6 +41,9 @@ const FormSchema = z.object({
 });
 
 export default function SignInCard({ setState }: SignInCardProps) {
+  const { toast } = useToast();
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     mode: "onChange",
@@ -47,17 +53,32 @@ export default function SignInCard({ setState }: SignInCardProps) {
     },
   });
 
-  const { toast } = useToast();
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    // 登录成功后设置 token
+    const res = await ky
+      .post("http://localhost:3333/api/repeat", { json: { data: data } })
+      .json();
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+    const token = "test-token";
+
+    Cookies.set("AuthToken", token, {
+      expires: 7,
+      secure: false, // 仅通过 HTTPS
+      path: "/", // Token 作用范围
+      sameSite: "Strict", // 严格行为
+    });
     toast({
-      title: "提交如下",
+      title: "登录成功",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+          <code className="text-white">{JSON.stringify(res, null, 2)}</code>
         </pre>
       ),
     });
+
+    setTimeout(() => {
+      router.push("/");
+    }, 1000);
   }
 
   return (

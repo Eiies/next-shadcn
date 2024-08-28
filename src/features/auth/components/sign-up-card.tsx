@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import ky from "ky";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 import { FaGithub } from "react-icons/fa6";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { parse } from "path";
 
 type SignInCardProps = {
   setState: (state: SignInFolw) => void;
@@ -53,12 +55,16 @@ export default function SignUpCard({ setState }: SignInCardProps) {
 
   const { toast } = useToast();
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    // TODO:
+    const url = process.env.HOSTNAME || "http://localhost:3333/api";
+    const test = await ky.post(`${url}/repeat`, { json: { res: data } }).json();
+
     toast({
-      title: "You submitted the following values:",
+      title: "你提交了以下信息",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+          <code className="text-white">{JSON.stringify(test, null, 2)}</code>
         </pre>
       ),
     });
@@ -68,7 +74,7 @@ export default function SignUpCard({ setState }: SignInCardProps) {
     <Card className="w-full h-full p-8">
       <CardHeader className="px-0 pt-0">
         <CardTitle>注册</CardTitle>
-        <CardDescription>将使用 Email 进行登录</CardDescription>
+        <CardDescription>将使用 Email 进行注册</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 px-0 pb-0">
         <Form {...form}>
@@ -121,7 +127,7 @@ export default function SignUpCard({ setState }: SignInCardProps) {
               size={"lg"}
               disabled={false}
             >
-              登录
+              注册
             </Button>
           </form>
         </Form>
