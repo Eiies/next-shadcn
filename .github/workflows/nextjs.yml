@@ -2,7 +2,7 @@ name: Next Page 运行
 
 on:
   push:
-    branches: ["main"]
+    branches: ["run"]
 
 permissions:
   contents: read
