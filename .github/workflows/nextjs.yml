@@ -5,19 +5,25 @@ on:
     branches: ["run"]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: npm --version
-      - run: npm install
-      - run: npm run build
+      - name: 读取仓库内容
+        uses: actions/checkout@v4
+
+      - name: 查看版本
+        run: npm --version
+
+      - name: 安装依赖 & 打包项目
+        run: |
+          npm install
+          npm run build
+
+      - name: 部署
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          bolder: build
