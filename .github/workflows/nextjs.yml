@@ -15,15 +15,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 查看版本
-        run: npm --version
+        run: yarn --version
 
       - name: 安装依赖 & 打包项目
         run: |
-          npm install
-          npm run build
+          yarn install
+          yarn run build
 
-      - name: 部署
+      - name: 部署 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          bolder: build
+          folder: dist
